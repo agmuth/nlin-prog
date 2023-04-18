@@ -2,8 +2,6 @@ import numpy as np
 from typing import Optional
 
 
-MACHINE_EPS = np.dtype('float')
-
 def forward_difference(f: callable, h: Optional[float]=1e-4) -> callable:
     h_inv = h**-1
     def f_prime(x: np.ndarray) -> np.ndarray:
