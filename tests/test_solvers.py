@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from nlinprog.solvers import steepest_descent
+from nlinprog.line_search import armijo_line_search, wolfe_line_search
 
 
 class OptimizationTestFunction():
@@ -23,12 +24,14 @@ bazaraa_ex = OptimizationTestFunction(
     x_start=np.array([0.0, 3.0])
 )
 
-func = bazaraa_ex
-x_res = steepest_descent(func.f, func.x_start)
+
+func = sphere_func_2d
+steepest_descent(func.f, func.x_start, wolfe_line_search)
 
 @pytest.mark.parametrize("solver", [steepest_descent])
-@pytest.mark.parametrize("func", [sphere_func_2d, bazaraa_ex])
+@pytest.mark.parametrize("func", [sphere_func_2d])
+@pytest.mark.parametrize("line_search", [armijo_line_search, wolfe_line_search])
 @pytest.mark.parametrize("atol", [1e-4])
-def test_sovlers_atol(solver: callable, func: OptimizationTestFunction, atol):
-    x_res = solver(func.f, func.x_start, atol=atol)
+def test_sovlers_atol(solver: callable, func: OptimizationTestFunction, line_search, atol):
+    x_res = solver(func.f, func.x_start, line_search, atol=atol)
     assert np.allclose(x_res, func.x_min, atol=atol)
