@@ -1,5 +1,4 @@
 import numpy as np
-from nlinprog.line_search import armijo_line_search
 from nlinprog.numerical_differentiation import central_difference
 from typing import Optional
 

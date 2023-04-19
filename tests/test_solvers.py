@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from nlinprog.solvers import steepest_descent
-from nlinprog.line_search import armijo_line_search, wolfe_line_search
+from nlinprog.line_search import armijo_backtracking_line_search, wolfe_zoom_line_search
 
 
 class OptimizationTestFunction():
@@ -25,12 +25,12 @@ bazaraa_ex = OptimizationTestFunction(
 )
 
 
-func = sphere_func_2d
-steepest_descent(func.f, func.x_start, wolfe_line_search)
+# func = sphere_func_2d
+# steepest_descent(func.f, func.x_start, wolfe_line_search)
 
 @pytest.mark.parametrize("solver", [steepest_descent])
 @pytest.mark.parametrize("func", [sphere_func_2d])
-@pytest.mark.parametrize("line_search", [armijo_line_search, wolfe_line_search])
+@pytest.mark.parametrize("line_search", [armijo_backtracking_line_search, wolfe_zoom_line_search])
 @pytest.mark.parametrize("atol", [1e-4])
 def test_sovlers_atol(solver: callable, func: OptimizationTestFunction, line_search, atol):
     x_res = solver(func.f, func.x_start, line_search, atol=atol)
