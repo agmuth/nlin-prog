@@ -76,11 +76,9 @@ def wolfe_zoom_line_search(f: callable, x: np.ndarray, d: np.ndarray, alpha_max:
             return zoom(phi, phi_prime, alpha_i, alpha_i_minus_one)
 
 
-def zoom(phi: callable, phi_prime: callable, alpha_low: float, alpha_high: float, epsilon: Optional[float]=0.2) -> float:
+def zoom(phi: callable, phi_prime: callable, alpha_high: float, alpha_low: float, epsilon: Optional[float]=0.2) -> float:
     alpha_high = alpha_high
     alpha_low = alpha_low
-    alpha = 0.5*(alpha_high + alpha_low)
-    phi_of_alpha = phi(alpha)
 
     zero = 0.0
     phi_of_zero = phi(zero)
@@ -89,6 +87,9 @@ def zoom(phi: callable, phi_prime: callable, alpha_low: float, alpha_high: float
     armijo_condition = lambda alpha: np.all(phi(alpha) <= phi_of_zero + epsilon * phi_prime_of_zero * alpha)
 
     while True:
+    #TODO: handle early termination
+        alpha = 0.5*(alpha_high + alpha_low) # interpolate via bisection #TODO: circle back and make smarter choice
+        phi_of_alpha = phi(alpha)
         if not armijo_condition(alpha) or phi_of_alpha > phi(alpha_low):
             alpha_high = alpha
         else:
@@ -98,6 +99,7 @@ def zoom(phi: callable, phi_prime: callable, alpha_low: float, alpha_high: float
             if phi_prime_of_alpha*(alpha_high - alpha_low):
                 alpha_high = alpha_low
             alpha_low = alpha
+
 
 
 def phi_of_alpha_quadratic_interpolation(alpha_i: float, phi_of_alpha_i: float, phi_of_zero: float, phi_prime_of_zero: float) -> float:
