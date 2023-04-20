@@ -39,10 +39,6 @@ def armijo_backtracking_line_search(f: callable, x: np.ndarray, d: np.ndarray, a
 
 
 def wolfe_zoom_line_search(f: callable, x: np.ndarray, d: np.ndarray, alpha_max: Optional[float]=1.0, c1: Optional[float]=0.2, c2: Optional[float]=2.0) -> float:
-    alpha_i_minus_one = 0
-    alpha_i = 0.5*(alpha_i_minus_one + alpha_max) #TODO: change to interpolation
-    i = 0
-
     f_grad = central_difference(f)
     phi = lambda alpha: f(x + alpha*d)
     phi_prime = lambda alpha: f_grad(x + alpha*d).T @ d
@@ -54,10 +50,22 @@ def wolfe_zoom_line_search(f: callable, x: np.ndarray, d: np.ndarray, alpha_max:
     _sufficient_decrease_condition = lambda alpha: sufficient_decrease_condition(phi(alpha), phi_of_zero, phi_prime_of_zero, alpha, c1)
     _curvature_condition_negative_c2 = lambda alpha: curvature_condition(phi(alpha), phi_prime_of_zero, alpha, -c2)
 
+    # alpha_i = 0 #NEED TO CHOOSE DIFFERENT INIT VAL
+    alpha_i = alpha_max
+    i = 0
+   
     while True:
         i += 1
+        
+        alpha_i_minus_one = alpha_i
+        phi_of_alpha_i_minus_one = phi(alpha_i_minus_one) 
+        alpha_i = phi_of_alpha_quadratic_interpolation(alpha_i_minus_one, phi_of_alpha_i_minus_one, phi_of_zero, phi_prime_of_zero)
+        
+        if i == 0:
+            alpha_i = max(alpha_max, alpha_i)
+
         phi_of_alpha_i = phi(alpha_i)
-        if _sufficient_decrease_condition(alpha_i) or (phi(alpha_i) > phi(alpha_i_minus_one) and i > 1):
+        if _sufficient_decrease_condition(alpha_i) or (phi_of_alpha_i > phi_of_alpha_i_minus_one and i > 1):
             return zoom(phi, phi_prime, alpha_i_minus_one, alpha_i)
         
         phi_prime_of_alpha_i = phi_prime(alpha_i)
@@ -66,9 +74,6 @@ def wolfe_zoom_line_search(f: callable, x: np.ndarray, d: np.ndarray, alpha_max:
         
         if phi_of_alpha_i >= 0:
             return zoom(phi, phi_prime, alpha_i, alpha_i_minus_one)
-        
-        alpha_i_minus_one = alpha_i
-        alpha_i = 0.5*(alpha_i + alpha_max) #TODO: change to interpolation
 
 
 def zoom(phi: callable, phi_prime: callable, alpha_low: float, alpha_high: float, epsilon: Optional[float]=0.2) -> float:
@@ -95,3 +100,27 @@ def zoom(phi: callable, phi_prime: callable, alpha_low: float, alpha_high: float
             alpha_low = alpha
 
 
+def phi_of_alpha_quadratic_interpolation(alpha_i: float, phi_of_alpha_i: float, phi_of_zero: float, phi_prime_of_zero: float) -> float:
+    # equ. 3.58 numerical optimization
+    alpha_i_plus_one = -0.5*(phi_prime_of_zero*alpha_i**2)/(phi_of_alpha_i - phi_of_zero - phi_prime_of_zero*alpha_i)
+    return alpha_i_plus_one
+
+
+def phi_of_alpha_cubic_interpolation1(alpha_i_minus_one: float, alpha_i: float, phi_of_alpha_i: float, phi_of_alpha_i_minus_one: float, phi_of_zero: float, phi_prime_of_zero: float) -> float:
+    # equ. 3.58 1/2 numerical optimization
+    a_and_b = (
+        (alpha_i**2 * alpha_i_minus_one**2 * (alpha_i - alpha_i_minus_one))**-1 
+        * np.array([[alpha_i_minus_one**2, -alpha_i**2], [-alpha_i_minus_one**3, alpha_i**3]]) 
+        @ np.array([[phi_of_alpha_i_minus_one - phi_of_zero - phi_prime_of_zero*alpha_i_minus_one], [phi_of_alpha_i - phi_of_zero - phi_prime_of_zero*alpha_i]])
+    ).flatten()
+    a, b = a_and_b[0], a_and_b[1]
+    alpha_i_plus_one = (3*a)**-1 * (-b + np.sqrt(b**2 - 3*a*phi_prime_of_zero))
+    return alpha_i_plus_one
+
+
+def phi_of_alpha_cubic_interpolation2(alpha_i_minus_one: float, alpha_i: float, phi_of_alpha_i: float, phi_of_alpha_i_minus_one: float, phi_prime_of_alpha_i: float, phi_prime_of_alpha_i_minus_one: float) -> float:
+    # equ. 3.59 numerical optimization
+    d1 = phi_prime_of_alpha_i_minus_one + phi_prime_of_alpha_i - 3*(phi_of_alpha_i_minus_one - phi_of_alpha_i)/(alpha_i_minus_one - alpha_i)
+    d2 = np.sign(alpha_i - alpha_i_minus_one) * np.sqrt(d1**2 - phi_prime_of_alpha_i_minus_one*phi_prime_of_alpha_i)
+    alpha_i_plus_one = alpha_i - (alpha_i - alpha_i_minus_one)*(phi_prime_of_alpha_i + d2 - d1)/(phi_prime_of_alpha_i - phi_prime_of_alpha_i_minus_one + 2*d2)
+    return alpha_i_plus_one

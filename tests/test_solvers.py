@@ -26,7 +26,7 @@ bazaraa_ex = OptimizationTestFunction(
 
 
 # func = sphere_func_2d
-# steepest_descent(func.f, func.x_start, wolfe_line_search)
+# steepest_descent(func.f, func.x_start, wolfe_zoom_line_search)
 
 @pytest.mark.parametrize("solver", [steepest_descent])
 @pytest.mark.parametrize("func", [sphere_func_2d])
