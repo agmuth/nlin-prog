@@ -1,5 +1,6 @@
 import numpy as np
 from typing import Optional
+from nlinprog.numerical_differentiation import central_difference, hessian
 
 class SimpleConvergenceTest():
     def __init__(self, val: float, atol: Optional[float]=None, rtol: Optional[float]=None):
@@ -24,3 +25,14 @@ class SimpleConvergenceTest():
             return True
         return False
 
+
+def build_return_object(f: callable, x: np.ndarray, iters: int, converged: bool) -> dict:
+    res = {
+        "x": x,
+        "func": f(x),
+        "grad": central_difference(f)(x),
+        "hess": hessian(f)(x),
+        "iters": iters,
+        "converged": converged
+    }
+    return res

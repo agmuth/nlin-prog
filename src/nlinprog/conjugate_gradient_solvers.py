@@ -6,13 +6,35 @@ from nlinprog.line_search import armijo_backtracking_line_search, wolfe_zoom_lin
 from nlinprog.utils import SimpleConvergenceTest
 
 
-def calc_fletch_reeves_cg_beta(g_k: np.ndarray, g_k_plus_one: np.ndarray):
+def calc_fletcher_reeves_cg_beta(g_k: np.ndarray, g_k_plus_one: np.ndarray):
     beta_k = g_k_plus_one.T @ g_k_plus_one / (g_k.T @ g_k)
     return beta_k
 
 def calc_polak_ribiere_cg_beta(g_k: np.ndarray, g_k_plus_one: np.ndarray):
     beta_k = (g_k_plus_one - g_k).T @ g_k_plus_one / (g_k.T @ g_k)
     return beta_k
+
+
+
+def gradient_scalar_update_calculation_mapping(method: str) -> callable:
+    method = method.lower()
+
+    aliases_mapping = {
+        "fletcher-reeves" : {
+            "aliases" : ["fr"],
+            "callable" : calc_fletcher_reeves_cg_beta,
+        },
+         "polak-ribiere" : {
+            "aliases" : ["pr"],
+            "callable" : calc_polak_ribiere_cg_beta,
+        },
+    }
+
+    for k, v in aliases_mapping.items():
+        if any(method == alias for alias in v["aliases"]):
+            return v["callable"]
+    
+    raise ValueError(f"method {method} is not supported.")
 
 
 def conjugate_gradient(f: callable, x0: np.ndarray, line_search: callable, cg_beta_calc: callable, atol:Optional[float]=None, rtol:Optional[float]=None, maxitters: Optional[int]=1000) -> np.ndarray:

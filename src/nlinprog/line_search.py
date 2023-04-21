@@ -17,10 +17,10 @@ def curvature_condition(phi_prime_of_alpha, phi_prime_of_zero, c2) -> bool:
     return np.all(np.abs(phi_prime_of_alpha) <= c2*np.abs(phi_prime_of_zero))
 
 
-def armijo_backtracking_line_search(f: callable, x: np.ndarray, d: np.ndarray, alpha: Optional[float]=1.0, epsilon: Optional[float]=0.2, eta: Optional[float]=2.0) -> float:
+def armijo_backtracking_line_search(f: callable, x_k: np.ndarray, d_k: np.ndarray, alpha: Optional[float]=1.0, epsilon: Optional[float]=0.2, eta: Optional[float]=2.0, *args, **kwargs) -> float:
     f_grad = central_difference(f)
-    phi = lambda alpha: f(x + alpha*d)
-    phi_prime = lambda alpha: f_grad(x + alpha*d).T @ d
+    phi = lambda alpha: f(x_k + alpha*d_k)
+    phi_prime = lambda alpha: f_grad(x_k + alpha*d_k).T @ d_k
 
     zero = 0.0
     phi_of_zero = phi(zero)
@@ -38,10 +38,12 @@ def armijo_backtracking_line_search(f: callable, x: np.ndarray, d: np.ndarray, a
     return alpha
 
 
-def wolfe_zoom_line_search(f: callable, x: np.ndarray, d: np.ndarray, alpha_max: Optional[float]=1.0, c1: Optional[float]=0.2, c2: Optional[float]=2.0) -> float:
+def wolfe_zoom_line_search(f: callable, x_k: np.ndarray, d_k: np.ndarray, alpha_max: Optional[float]=1.0, c1: Optional[float]=0.2, c2: Optional[float]=2.0, *args, **kwargs) -> float:
+    # kwargs.setdefault("alpha_max", 1.0)
+    
     f_grad = central_difference(f)
-    phi = lambda alpha: f(x + alpha*d)
-    phi_prime = lambda alpha: f_grad(x + alpha*d).T @ d
+    phi = lambda alpha: f(x_k + alpha*d_k)
+    phi_prime = lambda alpha: f_grad(x_k + alpha*d_k).T @ d_k
 
     zero = 0.0
     phi_of_zero = phi(zero)
@@ -50,7 +52,7 @@ def wolfe_zoom_line_search(f: callable, x: np.ndarray, d: np.ndarray, alpha_max:
     _sufficient_decrease_condition = lambda alpha: sufficient_decrease_condition(phi(alpha), phi_of_zero, phi_prime_of_zero, alpha, c1)
     _curvature_condition_negative_c2 = lambda alpha: curvature_condition(phi(alpha), phi_prime_of_zero, alpha, -c2)
 
-    # alpha_i = 0 #NEED TO CHOOSE DIFFERENT INIT VAL
+    
     alpha_i = alpha_max
     i = 0
    
@@ -126,3 +128,25 @@ def phi_of_alpha_cubic_interpolation2(alpha_i_minus_one: float, alpha_i: float, 
     d2 = np.sign(alpha_i - alpha_i_minus_one) * np.sqrt(d1**2 - phi_prime_of_alpha_i_minus_one*phi_prime_of_alpha_i)
     alpha_i_plus_one = alpha_i - (alpha_i - alpha_i_minus_one)*(phi_prime_of_alpha_i + d2 - d1)/(phi_prime_of_alpha_i - phi_prime_of_alpha_i_minus_one + 2*d2)
     return alpha_i_plus_one
+
+
+
+def line_search_calculation_mapping(method: str) -> callable:
+    method = method.lower()
+
+    aliases_mapping = {
+        "armijo" : {
+            "aliases" : ["armijo"],
+            "callable" : armijo_backtracking_line_search,
+        },
+         "wolfe" : {
+            "aliases" : ["wolfe"],
+            "callable" : wolfe_zoom_line_search,
+        },
+    }
+
+    for k, v in aliases_mapping.items():
+        if any(method == alias for alias in v["aliases"]):
+            return v["callable"]
+    
+    raise ValueError(f"method {method} is not supported.")
