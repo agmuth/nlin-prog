@@ -26,7 +26,7 @@ class SimpleConvergenceTest():
         return False
 
 
-def build_return_object(f: callable, x: np.ndarray, iters: int, converged: bool) -> dict:
+def build_result_object(f: callable, x: np.ndarray, iters: int, converged: bool) -> dict:
     res = {
         "x": x,
         "func": f(x),
