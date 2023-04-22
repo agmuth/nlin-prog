@@ -16,7 +16,7 @@ def newtons_method(
         H_0:Optional[np.ndarray]=None,
         atol:Optional[float]=None,
         rtol:Optional[float]=None, 
-        maxiters: Optional[int]=100,
+        maxiters: Optional[int]=200,
         *args,
         **kwargs
     ) -> np.ndarray:
@@ -73,7 +73,7 @@ def conjugate_gradient_method(
         conjugate_gradient_direction_method: str,
         atol:Optional[float]=None,
         rtol:Optional[float]=None, 
-        maxiters: Optional[int]=100,
+        maxiters: Optional[int]=00,
         *args,
         **kwargs
     ) -> np.ndarray:
@@ -123,16 +123,19 @@ def conjugate_gradient_method(
     return build_result_object(f, x_k, i*n+k, converged)
 
 
-# if __name__ == "__main__":
-#     f=lambda x: (x[0] - 2)**4 + (x[0] - 2*x[1])**2
-#     x_start=np.array([0.0, 3.0])
+if __name__ == "__main__":
+    f=lambda x: (x[0] - 2)**4 + (x[0] - 2*x[1])**2
+    x_start=np.array([0.0, 3.0])
 
-#     res = newtons_method(
-#         f=f,
-#         x0=x_start,
-#         line_search_method="armijo",
-#         inverse_hessian_method="bfgs",
-#         atol=1e-4
-#     )
+    res = newtons_method(
+        f=f,
+        x0=x_start,
+        # line_search_method="armijo",
+        line_search_method="wolfe",
+        inverse_hessian_method="broyden",
+        atol=1e-4
+    )
 
-#     print(res)
+# wolfe broyden
+# bfgs
+    print(res)

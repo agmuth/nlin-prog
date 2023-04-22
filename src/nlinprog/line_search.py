@@ -58,7 +58,7 @@ def wolfe_zoom_line_search(
         *args, 
         **kwargs
     ) -> float:
-    
+    # algorithm 3.5 numerical optimization 
 
     f_grad = central_difference(f)
     phi = lambda alpha: f(x_k + alpha*d_k)
@@ -68,25 +68,35 @@ def wolfe_zoom_line_search(
     phi_of_zero = phi(zero)
     phi_prime_of_zero = phi_prime(zero)
 
+    phi_of_alpha_max = phi(alpha_max)
+    phi_prime_of_alpha_max = phi_prime(alpha_max)
+
     _sufficient_decrease_condition = lambda alpha: sufficient_decrease_condition(phi(alpha), phi_of_zero, phi_prime_of_zero, alpha, c1)
     _curvature_condition_negative_c2 = lambda alpha: curvature_condition(phi(alpha), phi_prime_of_zero, alpha, -c2)
     
-    alpha_i = alpha_max
+    # alpha_i = phi_of_alpha_quadratic_interpolation(
+    #     alpha_i=alpha_max,
+    #     phi_of_alpha_i=phi(alpha_max),
+    #     phi_of_zero=phi_of_zero, 
+    #     phi_prime_of_zero=phi_prime_of_zero
+    # )
+    # alpha_i_minus_one = 0
+
+    alpha_i = 0.0
     i = 0
    
     while True:
         i += 1
-        
         alpha_i_minus_one = alpha_i
         phi_of_alpha_i_minus_one = phi(alpha_i_minus_one) 
-        alpha_i = phi_of_alpha_quadratic_interpolation(alpha_i_minus_one, phi_of_alpha_i_minus_one, phi_of_zero, phi_prime_of_zero)
-        
-        if i == 0:
-            alpha_i = max(alpha_max, alpha_i)
+        # alpha_i = phi_of_alpha_quadratic_interpolation(alpha_i_minus_one, phi_of_alpha_i_minus_one, phi_of_alpha_max, phi_prime_of_alpha_max)
+        # alpha_i = phi_of_alpha_quadratic_interpolation(alpha_max, phi_of_alpha_max, phi_of_alpha_i_minus_one, phi_prime(alpha_i_minus_one))
+        alpha_i = 0.5*(alpha_max + alpha_i_minus_one)
 
         phi_of_alpha_i = phi(alpha_i)
-        if _sufficient_decrease_condition(alpha_i) or (phi_of_alpha_i > phi_of_alpha_i_minus_one and i > 1):
-            return zoom(phi, phi_prime, alpha_i_minus_one, alpha_i)
+        if not _sufficient_decrease_condition(alpha_i) or (phi_of_alpha_i > phi_of_alpha_i_minus_one and i > 1):
+            # return zoom(phi, phi_prime, alpha_i_minus_one, alpha_i)
+            return zoom(phi, phi_prime, alpha_i, alpha_i_minus_one)
         
         phi_prime_of_alpha_i = phi_prime(alpha_i)
         if np.all(np.abs(phi_prime_of_alpha_i) <= -c2*phi_prime_of_zero):
