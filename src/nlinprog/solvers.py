@@ -73,7 +73,7 @@ def conjugate_gradient_method(
         conjugate_gradient_direction_method: str,
         atol:Optional[float]=None,
         rtol:Optional[float]=None, 
-        maxiters: Optional[int]=00,
+        maxiters: Optional[int]=200,
         *args,
         **kwargs
     ) -> np.ndarray:
@@ -94,7 +94,7 @@ def conjugate_gradient_method(
     func_rtol_convergence = SimpleConvergenceTest(np.linalg.norm(f_k), atol=np.finfo(float).eps, rtol=rtol) if rtol else None # add atol as machine eps as a safeguard
     converged = False    
 
-    for i in range(maxiters//n):
+    for i in range(maxiters):
         g_k = grad(x_k).T
         d_k = -1*g_k
         for k in range(n):
@@ -115,24 +115,24 @@ def conjugate_gradient_method(
             alpha_k = line_search(f=f, x_k=x_k, d_k=d_k, *args, **kwargs)  # minimizer of f(x_k + alpha*d_k)
             x_k += alpha_k*d_k
             g_k_plus_one = grad(x_k).T
-            d_k = calc_conjugate_direction(g_k, g_k_plus_one)
+            d_k = calc_conjugate_direction(d_k, g_k, g_k_plus_one)
             g_k = g_k_plus_one
         
         if converged: break
 
-    return build_result_object(f, x_k, i*n+k, converged)
+    return build_result_object(f, x_k, i, converged)
 
 
 if __name__ == "__main__":
     f=lambda x: (x[0] - 2)**4 + (x[0] - 2*x[1])**2
     x_start=np.array([0.0, 3.0])
 
-    res = newtons_method(
+    res = conjugate_gradient_method(
         f=f,
         x0=x_start,
         # line_search_method="armijo",
         line_search_method="wolfe",
-        inverse_hessian_method="broyden",
+        conjugate_gradient_direction_method="fr",
         atol=1e-4
     )
 
