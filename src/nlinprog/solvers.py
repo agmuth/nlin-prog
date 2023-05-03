@@ -5,7 +5,64 @@ from nlinprog.numerical_differentiation import central_difference
 from nlinprog.line_search import line_search_calculation_mapping
 from nlinprog.newton_hessian import inverse_hessian_calculation_mapping
 from nlinprog.conjugate_gradient_direction import conjugate_gradient_direction_calculation_mapping
-from nlinprog.utils import  SimpleConvergenceTest, build_result_object
+from nlinprog.utils import SimpleConvergenceTest, build_result_object
+from nlinprog.penalty_functions import squared_penalty, relu_squared_penalty, zero_func
+
+def penalized_newtwons_method(
+        f: callable,
+        x0: np.ndarray,
+        g: Optional[callable]=zero_func,
+        h: Optional[callable]=zero_func,
+        mu0: Optional[float]=2.0,
+        beta: Optional[float]=2.0,
+        line_search_method:Optional[str]="wolfe",
+        inverse_hessian_method:Optional[str]="bfgs",
+        H_0:Optional[np.ndarray]=None,
+        tol_penalty:Optional[float]=1e-4,
+        atol_sub_problem:Optional[float]=None,
+        rtol_sub_problem:Optional[float]=None,
+        maxiters: Optional[int]=200,
+        *args,
+        **kwargs
+    ) -> dict:
+
+    g_penalty_func = relu_squared_penalty(g)
+    h_penalty_func = squared_penalty(h)
+    penalty_func = lambda x: g_penalty_func(x) + h_penalty_func(x)
+
+    x_k = np.array(x0)
+    mu_k = mu0
+
+    # set up convergece tracking
+    penalty_tol_convergence = SimpleConvergenceTest(np.linalg.norm(g_k), atol=tol_penalty)
+    converged = False
+
+    for k in range(maxiters):
+        objective_func_k = lambda x: f(x) + mu_k * penalty_func(x)
+        # check for convergence 
+        if penalty_tol_convergence:
+            penalty_tol_convergence.update(0.0) 
+            penalty_tol_convergence.update(mu_k*penalty_func(x_k))
+            if penalty_tol_convergence.converged():
+                converged = True
+
+        if converged: break
+
+        res = newtons_method(
+            f=objective_func_k,
+            x0=x_k,
+            line_search_method=line_search_method,
+            inverse_hessian_method=inverse_hessian_method,
+            H_0=H_0,
+            tol_penalty=tol_penalty,
+            atol_sub_problem=atol_sub_problem,
+            rtol_sub_problem=rtol_sub_problem,
+            maxiters=maxiters,
+        )
+        x_k = res["x"]
+        mu_k *= beta
+
+    return build_result_object(f, x_k, k, converged)
 
 
 def newtons_method(
@@ -14,12 +71,12 @@ def newtons_method(
         line_search_method: str,
         inverse_hessian_method: str,
         H_0:Optional[np.ndarray]=None,
-        atol:Optional[float]=None,
+        atol:Optional[float]=1e-4,
         rtol:Optional[float]=None, 
         maxiters: Optional[int]=200,
         *args,
         **kwargs
-    ) -> np.ndarray:
+    ) -> dict:
 
     # get callables
     line_search = line_search_calculation_mapping(line_search_method)
@@ -76,7 +133,7 @@ def conjugate_gradient_method(
         maxiters: Optional[int]=200,
         *args,
         **kwargs
-    ) -> np.ndarray:
+    ) -> dict:
 
     # get callables
     line_search = line_search_calculation_mapping(line_search_method)
@@ -124,18 +181,17 @@ def conjugate_gradient_method(
 
 
 if __name__ == "__main__":
-    f=lambda x: (x[0] - 2)**4 + (x[0] - 2*x[1])**2
-    x_start=np.array([0.0, 3.0])
+    f=lambda x: (1 - x[0])**2 + 100*(x[1] - x[0]**2)**2
+    g=lambda x: np.array([
+        (x[0] - 1)**3 - x[1] + 1,
+        x.sum() - 2
+    ])
+    x_start=np.array([1.0, -0.5])
 
-    res = conjugate_gradient_method(
+    res = penalized_newtwons_method(
         f=f,
+        g=g,
         x0=x_start,
-        # line_search_method="armijo",
-        line_search_method="wolfe",
-        conjugate_gradient_direction_method="fr",
-        atol=1e-4
     )
 
-# wolfe broyden
-# bfgs
     print(res)
