@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from nlinprog.unconstrained_solvers import QuasiNewtonMethod, ConjugateGradientMethod
-from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UncontrainedOptimizationTestFunction
+from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UnconstrainedOptimizationTestFunction
 
 
 @pytest.mark.parametrize("func", UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS[:-1])
@@ -10,7 +10,7 @@ from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, Unco
 @pytest.mark.parametrize("inverse_hessian_method", ["exact", "bfgs", "dfp", "broyden"])
 @pytest.mark.parametrize("atol", [1e-4])
 def test_newton_sovlers_grad_atol(
-        func: UncontrainedOptimizationTestFunction, 
+        func: UnconstrainedOptimizationTestFunction, 
         line_search_method,
         inverse_hessian_method, 
         atol,
@@ -27,7 +27,7 @@ def test_newton_sovlers_grad_atol(
 @pytest.mark.parametrize("conjugate_gradient_direction_method", ["polak-ribier", "fletcher-reeves"])
 @pytest.mark.parametrize("atol", [1e-4])
 def test_conjugate_gradient_sovlers_grad_atol(
-        func: UncontrainedOptimizationTestFunction, 
+        func: UnconstrainedOptimizationTestFunction, 
         line_search_method,
         conjugate_gradient_direction_method, 
         atol,
