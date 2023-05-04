@@ -100,9 +100,10 @@ class ConjugateGradientMethod(UnconstrainedSolver):
 
 
 if __name__ == "__main__":
-    f = lambda x: np.square(x).sum()
-    x_0 = np.array([2, 2])
+    f=lambda x: (x[0] - 2)**4 + (x[0] - 2*x[1])**2
+    x_min=np.array([2., 1.])
+    x_0=np.array([0.0, 3.0])
 
-    solver = QuasiNewtonMethod(f, line_search_method="armijo", inverse_hessian_method="bfgs")
+    solver = ConjugateGradientMethod(f, line_search_method="wolfe", conjugate_gradient_direction_method="polak-ribier")
     res = solver.solve(x_0)
     print(res)

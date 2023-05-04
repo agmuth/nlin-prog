@@ -35,11 +35,6 @@ matyas_func = UncontrainedOptimizationTestFunction(
     x_start=np.array([2., -8.])
 )
 
-# bulkin_no_6_func = UncontrainedOptimizationTestFunction(
-#     f=lambda x: 100*np.sqrt(np.abs(x[1] * 0.01*x[0]**2) + 0.01*np.abs(x[0]+10)),
-#     x_min=np.array([-10., 1.]),
-#     x_start=np.array([-12., 3.])
-# )
 
 rosebrock_10d_func = UncontrainedOptimizationTestFunction(
     f=lambda x: 100*np.sum((x[1:] - x[:-1]**2)**2 + (1 - x[:-1]**2)),
@@ -47,21 +42,21 @@ rosebrock_10d_func = UncontrainedOptimizationTestFunction(
     x_start=-5*np.ones(1)
 )
 
-goldstien_price_func = UncontrainedOptimizationTestFunction(
-    f=lambda x: (
-        (
-            1 
-            + (x.sum() + 1)**2 
-            * (19 - 14*x[0] + 3*x[0]**2 - 14*x[1] + 6*x.prod() + 3*x[1]**2) 
-        )
-        * (
-            30
-            + (2*x[0] - 3*x[1])**2
-            * (18 - 32*x[0] + 12*x[0]**2 + 48*x[1] - 36*x.prod() + 27*x[1]**2) 
-        ) 
-    ),
-    x_min=np.array([0., -1.]),
-    x_start=np.array([-2., 2.])
-)
+# goldstien_price_func = UncontrainedOptimizationTestFunction(
+#     f=lambda x: (
+#         (
+#             1 
+#             + (x.sum() + 1)**2 
+#             * (19 - 14*x[0] + 3*x[0]**2 - 14*x[1] + 6*x.prod() + 3*x[1]**2) 
+#         )
+#         * (
+#             30
+#             + (2*x[0] - 3*x[1])**2
+#             * (18 - 32*x[0] + 12*x[0]**2 + 48*x[1] - 36*x.prod() + 27*x[1]**2) 
+#         ) 
+#     ),
+#     x_min=np.array([0., -1.]),
+#     x_start=np.array([-2., 2.])
+# )
 
 UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS = [x[1] for x in globals().items() if isinstance(x[1], UncontrainedOptimizationTestFunction)]
