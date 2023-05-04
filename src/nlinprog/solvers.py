@@ -3,7 +3,7 @@ from typing import Optional
 
 from nlinprog.numerical_differentiation import central_difference
 from nlinprog.line_search import line_search_calculation_mapping
-from nlinprog.newton_hessian import inverse_hessian_calculation_mapping
+from nlinprog.inverse_hessian import inverse_hessian_calculation_mapping
 from nlinprog.conjugate_gradient_direction import conjugate_gradient_direction_calculation_mapping
 from nlinprog.utils import SimpleConvergenceTest, build_result_object
 from nlinprog.penalty_functions import squared_penalty, relu_squared_penalty, zero_func

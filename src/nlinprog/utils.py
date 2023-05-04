@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Optional
+from typing import Optional, NamedTuple
 from nlinprog.numerical_differentiation import central_difference, hessian
 
 class SimpleConvergenceTest():
@@ -26,13 +26,13 @@ class SimpleConvergenceTest():
         return False
 
 
+class ResultsObject(NamedTuple):
+    x: np.ndarray
+    func: np.ndarray
+    grad: np.ndarray
+    hess: np.ndarray
+    iters: int
+    converged: bool
+
 def build_result_object(f: callable, x: np.ndarray, iters: int, converged: bool) -> dict:
-    res = {
-        "x": x,
-        "func": f(x),
-        "grad": central_difference(f)(x),
-        "hess": hessian(f)(x),
-        "iters": iters,
-        "converged": converged
-    }
-    return res
+    return ResultsObject(x, f(x), central_difference(f)(x), hessian(f)(x), iters, converged)

@@ -2,6 +2,9 @@ import numpy as np
 from typing import Optional
 from nlinprog.numerical_differentiation import central_difference
 
+from abc import ABC, abstractclassmethod
+from types import MappingProxyType
+
 
 def sufficient_decrease_condition(
     phi_of_alpha: np.ndarray,
@@ -15,96 +18,6 @@ def sufficient_decrease_condition(
 
 def curvature_condition(phi_prime_of_alpha, phi_prime_of_zero, c2) -> bool:
     return np.all(np.abs(phi_prime_of_alpha) <= c2*np.abs(phi_prime_of_zero))
-
-
-def armijo_backtracking_line_search(
-        f: callable,
-        x_k: np.ndarray, 
-        d_k: np.ndarray,
-        alpha: Optional[float]=1.0, 
-        epsilon: Optional[float]=0.2, 
-        eta: Optional[float]=2.0,
-        *args, 
-        **kwargs
-    ) -> float:
-
-    f_grad = central_difference(f)
-    phi = lambda alpha: f(x_k + alpha*d_k)
-    phi_prime = lambda alpha: f_grad(x_k + alpha*d_k).T @ d_k
-
-    zero = 0.0
-    phi_of_zero = phi(zero)
-    phi_prime_of_zero = phi_prime(zero)
-
-    _armijo_condition = lambda alpha: sufficient_decrease_condition(phi(alpha), phi_of_zero, phi_prime_of_zero, alpha, epsilon*eta)
-
-    while _armijo_condition(alpha): # alpha does not exceed bound -> increase until alpha violates bound and then take penultimate alpha
-        alpha *= eta
-
-    eta_inv = 1/eta
-    while not _armijo_condition(alpha): # alpha exceeds bound -> decrese alpha until it meets bound
-        alpha *= eta_inv
-
-    return alpha
-
-
-def wolfe_zoom_line_search(
-        f: callable,
-        x_k: np.ndarray, 
-        d_k: np.ndarray, 
-        alpha_max: Optional[float]=1.0, 
-        c1: Optional[float]=0.2, 
-        c2: Optional[float]=2.0, 
-        *args, 
-        **kwargs
-    ) -> float:
-    # algorithm 3.5 numerical optimization 
-
-    f_grad = central_difference(f)
-    phi = lambda alpha: f(x_k + alpha*d_k)
-    phi_prime = lambda alpha: f_grad(x_k + alpha*d_k).T @ d_k
-
-    zero = 0.0
-    phi_of_zero = phi(zero)
-    phi_prime_of_zero = phi_prime(zero)
-
-    phi_of_alpha_max = phi(alpha_max)
-    phi_prime_of_alpha_max = phi_prime(alpha_max)
-
-    _sufficient_decrease_condition = lambda alpha: sufficient_decrease_condition(phi(alpha), phi_of_zero, phi_prime_of_zero, alpha, c1)
-    _curvature_condition_negative_c2 = lambda alpha: curvature_condition(phi(alpha), phi_prime_of_zero, alpha, -c2)
-    
-    # alpha_i = phi_of_alpha_quadratic_interpolation(
-    #     alpha_i=alpha_max,
-    #     phi_of_alpha_i=phi(alpha_max),
-    #     phi_of_zero=phi_of_zero, 
-    #     phi_prime_of_zero=phi_prime_of_zero
-    # )
-    # alpha_i_minus_one = 0
-
-    alpha_i = 0.0
-    i = 0
-   
-    while True:
-        i += 1
-        alpha_i_minus_one = alpha_i
-        phi_of_alpha_i_minus_one = phi(alpha_i_minus_one) 
-        # alpha_i = phi_of_alpha_quadratic_interpolation(alpha_i_minus_one, phi_of_alpha_i_minus_one, phi_of_alpha_max, phi_prime_of_alpha_max)
-        # alpha_i = phi_of_alpha_quadratic_interpolation(alpha_max, phi_of_alpha_max, phi_of_alpha_i_minus_one, phi_prime(alpha_i_minus_one))
-        alpha_i = 0.5*(alpha_max + alpha_i_minus_one)
-
-        phi_of_alpha_i = phi(alpha_i)
-        if not _sufficient_decrease_condition(alpha_i) or (phi_of_alpha_i > phi_of_alpha_i_minus_one and i > 1):
-            # return zoom(phi, phi_prime, alpha_i_minus_one, alpha_i)
-            return zoom(phi, phi_prime, alpha_i, alpha_i_minus_one)
-        
-        phi_prime_of_alpha_i = phi_prime(alpha_i)
-        if np.all(np.abs(phi_prime_of_alpha_i) <= -c2*phi_prime_of_zero):
-            return alpha_i
-        
-        if phi_of_alpha_i >= 0:
-            return zoom(phi, phi_prime, alpha_i, alpha_i_minus_one)
-
 
 def zoom(phi: callable, phi_prime: callable, alpha_high: float, alpha_low: float, epsilon: Optional[float]=0.2) -> float:
     alpha_high = alpha_high
@@ -131,6 +44,7 @@ def zoom(phi: callable, phi_prime: callable, alpha_high: float, alpha_low: float
             alpha_low = alpha
 
 
+#TODO clean up all this interpolation garbage (?)
 
 def phi_of_alpha_quadratic_interpolation(alpha_i: float, phi_of_alpha_i: float, phi_of_zero: float, phi_prime_of_zero: float) -> float:
     # equ. 3.58 numerical optimization
@@ -158,22 +72,96 @@ def phi_of_alpha_cubic_interpolation2(alpha_i_minus_one: float, alpha_i: float, 
     return alpha_i_plus_one
 
 
-def line_search_calculation_mapping(method: str) -> callable:
-    method = method.lower()
+class LineSearch(ABC):
+    @abstractclassmethod
+    def __call__(self, x_k, d_k) -> float:
+        pass
 
-    aliases_mapping = {
-        "armijo" : {
-            "aliases" : ["armijo"],
-            "callable" : armijo_backtracking_line_search,
-        },
-         "wolfe" : {
-            "aliases" : ["wolfe"],
-            "callable" : wolfe_zoom_line_search,
-        },
-    }
 
-    for k, v in aliases_mapping.items():
-        if any(method == alias for alias in v["aliases"]):
-            return v["callable"]
+class ArmijoBacktraackingLineSearch(LineSearch):
+    def __init__(self, alpha: Optional[float]=1.0, epsilon: Optional[float]=0.2, eta: Optional[float]=2.0,):
+        self.alpha = alpha
+        self.epsilon = epsilon
+        self.eta = eta
+        self.eta_inv = 1/self.eta
+
+    def __call__(self, f: callable, x_k: np.ndarray, d_k: np.ndarray) -> float:
+        grad_f = central_difference(f)
+        phi = lambda alpha: f(x_k + alpha*d_k)
+        phi_prime = lambda alpha: grad_f(x_k + alpha*d_k).T @ d_k
+
+        zero = 0.0
+        phi_of_zero = phi(zero)
+        phi_prime_of_zero = phi_prime(zero)
+
+        _armijo_condition = lambda alpha: sufficient_decrease_condition(phi(alpha), phi_of_zero, phi_prime_of_zero, alpha, self.epsilon*self.eta)
+
+        while _armijo_condition(alpha): # alpha does not exceed bound -> increase until alpha violates bound and then take penultimate alpha
+            alpha *= self.eta
+
+        while not _armijo_condition(alpha): # alpha exceeds bound -> decrese alpha until it meets bound
+            alpha *= self.eta_inv
+
+        return alpha
+
+
+class WolfeZoomLineSearch(LineSearch):
+    def __init__(self, alpha_max: float=1.0, c1: float=0.2, c2: float=2.0):
+        self.alpha_max = alpha_max
+        self.c1 = c1
+        self.c2 = c2
+
+    def __call__(self, f: callable, x_k: np.ndarray, d_k: np.ndarray) -> float:
+        grad_f = central_difference(f)
+        phi = lambda alpha: f(x_k + alpha*d_k)
+        phi_prime = lambda alpha: grad_f(x_k + alpha*d_k).T @ d_k
+
+        zero = 0.0
+        phi_of_zero = phi(zero)
+        phi_prime_of_zero = phi_prime(zero)
+
+        phi_of_alpha_max = phi(self.alpha_max)
+        phi_prime_of_alpha_max = phi_prime(self.alpha_max)
+
+        _sufficient_decrease_condition = lambda alpha: sufficient_decrease_condition(phi(alpha), phi_of_zero, phi_prime_of_zero, alpha, self.c1)
+        _curvature_condition_negative_c2 = lambda alpha: curvature_condition(phi(alpha), phi_prime_of_zero, alpha, -self.c2)
+        
+        # alpha_i = phi_of_alpha_quadratic_interpolation(
+        #     alpha_i=alpha_max,
+        #     phi_of_alpha_i=phi(alpha_max),
+        #     phi_of_zero=phi_of_zero, 
+        #     phi_prime_of_zero=phi_prime_of_zero
+        # )
+        # alpha_i_minus_one = 0
+
+        alpha_i = 0.0
+        i = 0
     
-    raise ValueError(f"method {method} is not supported.")
+        while True:
+            i += 1
+            alpha_i_minus_one = alpha_i
+            phi_of_alpha_i_minus_one = phi(alpha_i_minus_one) 
+            # alpha_i = phi_of_alpha_quadratic_interpolation(alpha_i_minus_one, phi_of_alpha_i_minus_one, phi_of_alpha_max, phi_prime_of_alpha_max)
+            # alpha_i = phi_of_alpha_quadratic_interpolation(alpha_max, phi_of_alpha_max, phi_of_alpha_i_minus_one, phi_prime(alpha_i_minus_one))
+            alpha_i = 0.5*(self.alpha_max + alpha_i_minus_one)
+
+            phi_of_alpha_i = phi(alpha_i)
+            if not _sufficient_decrease_condition(alpha_i) or (phi_of_alpha_i > phi_of_alpha_i_minus_one and i > 1):
+                # return zoom(phi, phi_prime, alpha_i_minus_one, alpha_i)
+                return zoom(phi, phi_prime, alpha_i, alpha_i_minus_one)
+            
+            phi_prime_of_alpha_i = phi_prime(alpha_i)
+            if np.all(np.abs(phi_prime_of_alpha_i) <= -self.c2*phi_prime_of_zero):
+                return alpha_i
+            
+            if phi_of_alpha_i >= 0:
+                return zoom(phi, phi_prime, alpha_i, alpha_i_minus_one)
+
+
+
+LINE_SEARCH_MAPPING = MappingProxyType(
+    {
+        "armijo": ArmijoBacktraackingLineSearch,
+        "wolfe": WolfeZoomLineSearch
+    }
+)

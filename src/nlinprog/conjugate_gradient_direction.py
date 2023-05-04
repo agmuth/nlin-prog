@@ -1,33 +1,28 @@
 import numpy as np
+from abc import ABC, abstractclassmethod
+from types import MappingProxyType
+
+class CalcConjugateGradientDirection(ABC):
+    @abstractclassmethod
+    def __call__(self):
+        pass
 
 
-def calc_fletcher_reeves_conjugate_gradient_direction(d_k: np.ndarray, g_k: np.ndarray, g_k_plus_one: np.ndarray):
-    beta_k = g_k_plus_one.T @ g_k_plus_one / (g_k.T @ g_k)
-    return -1*g_k_plus_one + beta_k*d_k
-
-
-def calc_polak_ribiere_conjugate_gradient_direction(d_k: np.ndarray, g_k: np.ndarray, g_k_plus_one: np.ndarray):
-    beta_k = (g_k_plus_one - g_k).T @ g_k_plus_one / (g_k.T @ g_k)
-    return -1*g_k_plus_one + beta_k*d_k
-
-
-def conjugate_gradient_direction_calculation_mapping(method: str) -> callable:
-    method = method.lower()
-
-    aliases_mapping = {
-        "fletcher-reeves" : {
-            "aliases" : ["fr"],
-            "callable" : calc_fletcher_reeves_conjugate_gradient_direction,
-        },
-         "polak-ribiere" : {
-            "aliases" : ["pr"],
-            "callable" : calc_fletcher_reeves_conjugate_gradient_direction,
-        },
-    }
-
-    for k, v in aliases_mapping.items():
-        if any(method == alias for alias in v["aliases"]):
-            return v["callable"]
+class FletcherReevesConjugateGradientDirection(CalcConjugateGradientDirection):
+    def __call__(self, d_k: np.ndarray, g_k: np.ndarray, g_k_plus_one: np.ndarray) -> np.ndarray:
+        beta_k = g_k_plus_one.T @ g_k_plus_one / (g_k.T @ g_k)
+        return -1*g_k_plus_one + beta_k*d_k
     
-    raise ValueError(f"method {method} is not supported.")
 
+class PolakRibiereConjugateGradientDirection(CalcConjugateGradientDirection):
+    def __call__(self, d_k: np.ndarray, g_k: np.ndarray, g_k_plus_one: np.ndarray) -> np.ndarray:
+        beta_k = (g_k_plus_one - g_k).T @ g_k_plus_one / (g_k.T @ g_k)
+        return -1*g_k_plus_one + beta_k*d_k
+
+
+CALC_CONJUGATE_GRADIENT_DIRECTION_MAPPING = MappingProxyType(
+    {
+        "fletcher-reeves": FletcherReevesConjugateGradientDirection,
+        "polak-ribier": PolakRibiereConjugateGradientDirection
+    }
+)
