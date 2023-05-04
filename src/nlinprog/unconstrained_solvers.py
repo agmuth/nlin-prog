@@ -24,11 +24,11 @@ class QuasiNewtonMethod(UnconstrainedSolver):
         self.calc_inverse_hessian = APPROX_INVERSE_HESSIAN_MAPPING[inverse_hessian_method]() if isinstance(inverse_hessian_method, str) else inverse_hessian_method
         
 
-    def solve(self, x_0: np.ndarray, H_0: Optional[np.ndarray]=None, maxiters: int=200, grad_atol: Optional[float]=1e-4):
+    def solve(self, x_0: np.ndarray, maxiters: int=200, grad_atol: Optional[float]=1e-4):
         # init params for algorithm
         x_k = np.array(x_0).astype(np.float64)
         g_k = self.grad(x_k)
-        H_k = np.array(H_0) if H_0 else np.eye(x_0.shape[0])# inverse hessian
+        H_k = np.eye(x_0.shape[0])  # inverse hessian
 
         # set up convergece tracking
         grad_atol_convergence = SimpleConvergenceTest(np.linalg.norm(g_k), atol=grad_atol) if grad_atol else None
