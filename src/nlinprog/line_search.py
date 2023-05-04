@@ -87,6 +87,7 @@ class ArmijoBacktraackingLineSearch(LineSearch):
 
     def __call__(self, f: callable, x_k: np.ndarray, d_k: np.ndarray) -> float:
         grad_f = central_difference(f)
+        alpha = np.array(self.alpha)
         phi = lambda alpha: f(x_k + alpha*d_k)
         phi_prime = lambda alpha: grad_f(x_k + alpha*d_k).T @ d_k
 

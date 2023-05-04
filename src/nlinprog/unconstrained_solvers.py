@@ -103,6 +103,6 @@ if __name__ == "__main__":
     f = lambda x: np.square(x).sum()
     x_0 = np.array([2, 2])
 
-    solver = ConjugateGradientMethod(f)
+    solver = QuasiNewtonMethod(f, line_search_method="armijo", inverse_hessian_method="bfgs")
     res = solver.solve(x_0)
     print(res)

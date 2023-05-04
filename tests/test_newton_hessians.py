@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
 
-from nlinprog.solvers import newtons_method
+from nlinprog.unconstrained_solvers import QuasiNewtonMethod
+from nlinprog.inverse_hessian import BroydenInverseHessian
 from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UncontrainedOptimizationTestFunction
 
 
@@ -16,26 +17,13 @@ def test_broyden_bfgs_agreement(
         atol
     ):
 
-    res_bfgs = newtons_method(
-        f=func.f,
-        x0=func.x_start,
-        line_search_method=line_search_method,
-        inverse_hessian_method="bfgs",
-        maxiters=maxiters,
-        atol=atol
-    )
+    bfgs_solver = QuasiNewtonMethod(f=func.f, line_search_method=line_search_method, inverse_hessian_method="bfgs")
+    broyden_solver = QuasiNewtonMethod(f=func.f, line_search_method=line_search_method, inverse_hessian_method=BroydenInverseHessian(phi=1.0))
+    
+    bfgs_res = bfgs_solver.solve(x_0=func.x_start, maxiters=maxiters, grad_atol=atol)
+    broyden_res = broyden_solver.solve(x_0=func.x_start, maxiters=maxiters, grad_atol=atol)
 
-    res_broyden = newtons_method(
-        f=func.f,
-        x0=func.x_start,
-        line_search_method=line_search_method,
-        inverse_hessian_method="bfgs",
-        maxiters=maxiters,
-        atol=atol,
-        phi=1.0
-    )
-
-    assert np.allclose(res_bfgs["x"], res_broyden["x"], atol=atol)
+    assert np.allclose(bfgs_res.x, broyden_res.x, atol=1e-4)
 
 
 @pytest.mark.parametrize("func", UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS[:1])
@@ -49,24 +37,11 @@ def test_broyden_dfp_agreement(
         atol
     ):
 
-    res_dfp = newtons_method(
-        f=func.f,
-        x0=func.x_start,
-        line_search_method=line_search_method,
-        inverse_hessian_method="dfp",
-        maxiters=maxiters,
-        atol=atol
-    )
+    dfp_solver = QuasiNewtonMethod(f=func.f, line_search_method=line_search_method, inverse_hessian_method="dfp")
+    broyden_solver = QuasiNewtonMethod(f=func.f, line_search_method=line_search_method, inverse_hessian_method=BroydenInverseHessian(phi=0.0))
 
-    res_broyden = newtons_method(
-        f=func.f,
-        x0=func.x_start,
-        line_search_method=line_search_method,
-        inverse_hessian_method="bfgs",
-        maxiters=maxiters,
-        atol=atol,
-        phi=0.0
-    )
+    dfp_res = dfp_solver.solve(x_0=func.x_start, maxiters=maxiters, grad_atol=atol)
+    broyden_res = broyden_solver.solve(x_0=func.x_start, maxiters=maxiters, grad_atol=atol)
 
-    assert np.allclose(res_dfp["x"], res_broyden["x"], atol=atol)
+    assert np.allclose(dfp_res.x, broyden_res.x, atol=1e-4)
 
