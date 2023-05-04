@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from nlinprog.constrained_solvers import PenalizedQuasiNewtonMethod, PenalizedConjugateGradientMethod
+from nlinprog.constrained.constrained_solvers import PenalizedQuasiNewtonMethod, PenalizedConjugateGradientMethod
 from tests.test_functions import CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, ConstrainedOptimizationTestFunction
 
 

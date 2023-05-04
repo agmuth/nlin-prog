@@ -104,7 +104,7 @@ class WolfeZoomLineSearch(LineSearch):
                     alpha_high = alpha_low
                 alpha_low = alpha
 
-            if alpha_high-alpha_low < 1e-3: # CG-method seems to produce search directions that increase function -> think its numerical issues with calculating derivatives
+            if abs(alpha_high-alpha_low) < 1e-3: # CG-method seems to produce search directions that increase function -> think its numerical issues with calculating derivatives
                 return alpha
 
 

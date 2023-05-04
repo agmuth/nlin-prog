@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from nlinprog.unconstrained_solvers import QuasiNewtonMethod
+from nlinprog.unconstrained.unconstrained_solvers import QuasiNewtonMethod
 from nlinprog.inverse_hessian import BroydenInverseHessian
-from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UncontrainedOptimizationTestFunction
+from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UnconstrainedOptimizationTestFunction
 
 
 @pytest.mark.parametrize("func", UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS)
@@ -11,7 +11,7 @@ from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, Unco
 @pytest.mark.parametrize("maxiters", [1, 2, 5, 10])
 @pytest.mark.parametrize("atol", [1e-4])
 def test_broyden_bfgs_agreement(
-        func: UncontrainedOptimizationTestFunction, 
+        func: UnconstrainedOptimizationTestFunction, 
         line_search_method, 
         maxiters,
         atol
@@ -31,7 +31,7 @@ def test_broyden_bfgs_agreement(
 @pytest.mark.parametrize("maxiters", [1, 2, 5, 10])
 @pytest.mark.parametrize("atol", [1e-4])
 def test_broyden_dfp_agreement(
-        func: UncontrainedOptimizationTestFunction, 
+        func: UnconstrainedOptimizationTestFunction, 
         line_search_method, 
         maxiters,
         atol

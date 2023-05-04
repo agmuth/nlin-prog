@@ -7,7 +7,7 @@ from nlinprog.line_search import LINE_SEARCH_MAPPING, LineSearch
 from nlinprog.inverse_hessian import APPROX_INVERSE_HESSIAN_MAPPING, ApproxInverseHessian
 from nlinprog.conjugate_gradient_direction import CALC_CONJUGATE_GRADIENT_DIRECTION_MAPPING, CalcConjugateGradientDirection
 from nlinprog.utils import SimpleConvergenceTest, build_result_object
-from nlinprog.unconstrained_solvers import QuasiNewtonMethod, ConjugateGradientMethod
+from nlinprog.unconstrained.unconstrained_solvers import QuasiNewtonMethod, ConjugateGradientMethod
 from nlinprog.penalty_functions import INEQUALITY_PENALTY_FUNCTIONS_MAPPING, EQUALITY_PENALTY_FUNCTIONS_MAPPING, InequalityPenaltyFunction, EqualityPenaltyFunction, zero_func
 
 
