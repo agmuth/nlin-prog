@@ -40,19 +40,3 @@ class PenalizedQuasiNewtonMethod():
             mu *= beta
 
         return build_result_object(self.f, x_k, k, converged)
-    
-
-
-if __name__ == "__main__":
-    import numpy as np
-    f=lambda x: (1 - x[0])**2 + 100*(x[1] - x[0]**2)**2
-    g=lambda x: np.array([
-        (x[0] - 1)**3 - x[1] + 1,
-        x.sum() - 2
-    ])
-    h=None
-    x_start=np.array([1.0, -0.5])
-    x_min=np.zeros(2)
-    solver = PenalizedQuasiNewtonMethod(f, g, h, line_search_method="wolfe", inverse_hessian_method="dfp")
-    res = solver.solve(x_0=x_start)
-    print(res)
