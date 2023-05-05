@@ -54,12 +54,14 @@ class BroydenInverseHessian(ApproxInverseHessian):
     def __init__(self, phi: float=0.5):
         self.phi = phi
         self.calc_dfp_inverse_hessian = DFPInverseHessian()
+        self.calc_bfgs_inverse_hessian = BFGSInverseHessian()
 
     def __call__(self, H_k: np.ndarray, p_k: np.ndarray, q_k: np.ndarray, *args, **kwargs) -> np.ndarray:
-        H_k_plus_one = self.calc_dfp_inverse_hessian(H_k, p_k, q_k)
-        v_k = np.sqrt(q_k.T @ H_k @ q_k) * (p_k / (p_k.T @ q_k) - H_k @ q_k / (q_k.T @ H_k @ q_k))
-        H_k_plus_one += self.phi * np.outer(v_k, v_k)
-        return H_k_plus_one
+        # H_k_plus_one = self.calc_dfp_inverse_hessian(H_k, p_k, q_k)
+        # v_k = np.sqrt(q_k.T @ H_k @ q_k) * (p_k / (p_k.T @ q_k) - H_k @ q_k / (q_k.T @ H_k @ q_k))
+        # H_k_plus_one += self.phi * np.outer(v_k, v_k)
+        # return H_k_plus_one
+        return (1-self.phi)*self.calc_dfp_inverse_hessian(H_k, p_k, q_k) + self.phi*self.calc_bfgs_inverse_hessian(H_k, p_k, q_k)
 
 
 

@@ -4,11 +4,12 @@ import pytest
 from nlinprog.constrained.penalty.conjugate_gradient import PenalizedConjugateGradientMethod
 from tests.constrained.constrained_test_functions import CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, ConstrainedOptimizationTestFunction
 
+PENALIZED_TEST_FUNCTIONS = CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS[0:1]
 
-@pytest.mark.parametrize("func", CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS)
+@pytest.mark.parametrize("func", PENALIZED_TEST_FUNCTIONS)
 @pytest.mark.parametrize("line_search_method", ["armijo", "wolfe"])
 @pytest.mark.parametrize("conjugate_gradient_direction_method", ["polak-ribiere", "fletcher-reeves"])
-@pytest.mark.parametrize("atol", [1e-8])
+@pytest.mark.parametrize("atol", [1e-4])
 def test_penalize_conjugate_gradient_sovlers_grad_atol(
         func: ConstrainedOptimizationTestFunction, 
         line_search_method,

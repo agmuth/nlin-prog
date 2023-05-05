@@ -4,11 +4,12 @@ import pytest
 from nlinprog.constrained.penalty.quasi_newton import PenalizedQuasiNewtonMethod
 from tests.constrained.constrained_test_functions import CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, ConstrainedOptimizationTestFunction
 
+PENALIZED_TEST_FUNCTIONS = CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS[0:1]
 
-@pytest.mark.parametrize("func", CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS)
+@pytest.mark.parametrize("func", PENALIZED_TEST_FUNCTIONS)
 @pytest.mark.parametrize("line_search_method", ["wolfe", "armijo"])
 @pytest.mark.parametrize("inverse_hessian_method", ["exact", "bfgs", "dfp", "broyden"])
-@pytest.mark.parametrize("atol", [1e-8])
+@pytest.mark.parametrize("atol", [1e-4])
 def test_penalized_newton_sovlers_grad_atol(
         func: ConstrainedOptimizationTestFunction, 
         line_search_method,

@@ -17,8 +17,18 @@ constrained_rosenbrock1 = ConstrainedOptimizationTestFunction(
         x.sum() - 2
     ]),
     h=None,
-    x_start=np.array([1.0, -0.5]),
-    x_min=np.zeros(2),
+    x_start=np.array([2.0, -0.5]),
+    x_min=np.ones(2),
+)
+
+constrained_rosenbrock2 = ConstrainedOptimizationTestFunction(
+    f=lambda x: (1 - x[0])**2 + 100*(x[1] - x[0]**2)**2,
+    g=lambda x: np.array([
+        np.square(x).sum() - 2.5
+    ]),
+    h=None,
+    x_start=np.array([-0.5, -0.5]),
+    x_min=np.ones(2),
 )
 
 CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS = [x[1] for x in globals().items() if isinstance(x[1], ConstrainedOptimizationTestFunction)]
