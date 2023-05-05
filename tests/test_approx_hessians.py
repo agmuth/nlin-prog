@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from nlinprog.unconstrained.unconstrained_solvers import QuasiNewtonMethod
-from nlinprog.inverse_hessian import BroydenInverseHessian
-from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UnconstrainedOptimizationTestFunction
+from nlinprog.unconstrained.quasi_newton import QuasiNewtonMethod, BroydenInverseHessian
+from nlinprog.unconstrained.quasi_newton import BroydenInverseHessian
+from tests.unconstrained.unconstrained_test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UnconstrainedOptimizationTestFunction
 
 
 @pytest.mark.parametrize("func", UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS)

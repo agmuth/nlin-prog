@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from nlinprog.unconstrained.quasi_newton import QuasiNewtonMethod
-from tests.test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UnconstrainedOptimizationTestFunction
+from tests.unconstrained.unconstrained_test_functions import UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, UnconstrainedOptimizationTestFunction
 
 
 @pytest.mark.parametrize("func", UNCONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS[:-1])
