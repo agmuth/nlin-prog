@@ -16,25 +16,27 @@ class PenalizedQuasiNewtonMethod():
         self.h_penalized = zero_func if not h else EQUALITY_PENALTY_FUNCTIONS_MAPPING[h_penalty]()(h) if isinstance(h_penalty, str) else h_penalty(h) 
         self.solver = QuasiNewtonMethod(f=f, line_search_method=line_search_method, inverse_hessian_method=inverse_hessian_method)
 
-    def solve(self, x_0: np.ndarray, mu: float=2.0, beta: float=2.0, penalty_atol: Optional[float]=1e-4, maxiters1: int=200, maxiters2: int=200, grad_atol: Optional[float]=1e-4):
+    def solve(self, x_0: np.ndarray, mu: float=2.0, beta: float=2.0, grad_atol: Optional[float]=1e-4, delta_x_atol: Optional[float]=1e-4, maxiters1: int=200, maxiters2: int=200, **kwargs):
         # init params for algorithm
         x_k = np.array(x_0).astype(np.float64)
+        p_k = None
         penalty_func = lambda x: self.g_penalized(x) + self.h_penalized(x)
-        penalty_tol_convergence = SimpleConvergenceTest(-1., atol=penalty_atol)
+        grad_tol_convergence = SimpleConvergenceTest(-1., atol=grad_atol)
         converged = False
 
         for k in range(maxiters1):
             # check for convergence 
-            if penalty_tol_convergence and k > 0:
-                penalty_tol_convergence.update(np.linalg.norm(res_k.grad))
-                if penalty_tol_convergence.converged():
+            if grad_tol_convergence and k > 0:
+                grad_tol_convergence.update(np.linalg.norm(res_k.grad))
+                if grad_tol_convergence.converged() and np.linalg.norm(p_k) < delta_x_atol:
                     converged = True
 
             if converged: break
 
             objective_func_k = lambda x: self.f(x) + mu * penalty_func(x)
             self.solver.f = objective_func_k
-            res_k = self.solver.solve(x_0=x_k, maxiters=maxiters2, grad_atol=grad_atol)
+            res_k = self.solver.solve(x_0=x_k, maxiters=maxiters2, **kwargs)
+            p_k = res_k.x - x_k
             x_k = res_k.x
             mu *= beta
 

@@ -16,7 +16,7 @@ class LineSearch(ABC):
 
 
 class ArmijoBacktraackingLineSearch(LineSearch):
-    def __init__(self, alpha: Optional[float]=1.0, epsilon: Optional[float]=0.2, eta: Optional[float]=2.0,):
+    def __init__(self, alpha: Optional[float]=2.0, epsilon: Optional[float]=0.2, eta: Optional[float]=2.0,):
         self.alpha = alpha
         self.epsilon = epsilon
         self.eta = eta
