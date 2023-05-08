@@ -10,6 +10,10 @@ class ConstrainedOptimizationTestFunction():
         self.x_min = x_min
         self.x_start = x_start
 
+    @property
+    def min_not_on_boundary(self):
+        return np.all(self.g(self.x_min) < 0)
+
 constrained_rosenbrock1 = ConstrainedOptimizationTestFunction(
     f=lambda x: (1 - x[0])**2 + 100*(x[1] - x[0]**2)**2,
     g=lambda x: np.array([

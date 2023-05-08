@@ -4,7 +4,7 @@ import pytest
 from nlinprog.constrained.barrier.quasi_newton import BarrierQuasiNewtonMethod
 from tests.constrained.constrained_test_functions import CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, ConstrainedOptimizationTestFunction
 
-BARRIER_TEST_FUNCTIONS = CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS[1:2]
+BARRIER_TEST_FUNCTIONS = [func for func in CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS if func.min_not_on_boundary and not func.h]
 
 @pytest.mark.parametrize("func", BARRIER_TEST_FUNCTIONS)
 @pytest.mark.parametrize("line_search_method", ["wolfe", "armijo"])
