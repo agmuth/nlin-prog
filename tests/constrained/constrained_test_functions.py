@@ -12,7 +12,7 @@ class ConstrainedOptimizationTestFunction():
 
     @property
     def min_not_on_boundary(self):
-        return np.all(self.g(self.x_min) < 0)
+        return np.all(self.g(self.x_min) < 0) if self.g else True
 
 constrained_rosenbrock1 = ConstrainedOptimizationTestFunction(
     # rosenbroack constrained by cubiic and line
@@ -52,6 +52,22 @@ constrained_rosenbrock3 = ConstrainedOptimizationTestFunction(
     x_min=np.ones(2),
 )
 
-
+maytas1 = ConstrainedOptimizationTestFunction(
+    # maytas constrained to a sine wave on the unit disk
+    f=lambda x: 0.26*np.square(x).sum() -0.48*np.prod(x),
+    g=lambda x: np.array(
+        [
+            np.square(x).sum() - 1
+        ]
+    ),
+    h=lambda x: np.array(
+        [
+            np.sin(x[0]),
+            np.sin(x[1]),
+        ]
+    ),
+    x_start=np.array([10.0, -10.0]),
+    x_min=np.zeros(2),
+)
 
 CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS = [x[1] for x in globals().items() if isinstance(x[1], ConstrainedOptimizationTestFunction)]
