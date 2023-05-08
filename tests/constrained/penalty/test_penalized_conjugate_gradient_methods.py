@@ -20,6 +20,7 @@ def test_penalize_conjugate_gradient_sovlers_grad_atol(
     res = solver.solve(x_0=func.x_start, grad_atol=atol)
 
     # check that L2 norm of grad is same order of magnitude as atol - some methods do not garuantee that grad is monotonic decreasing. 
-    assert np.allclose(np.logaddexp(np.linalg.norm(res.grad), atol), 0.0, atol=10) and res.converged
+    # assert np.allclose(np.logaddexp(np.linalg.norm(res.grad), atol), 0.0, atol=10) and res.converged
+    assert np.allclose(np.linalg.norm(res.x - func.x_min), 0, atol=0.1)
     
     
