@@ -19,7 +19,7 @@ class SimpleConvergenceTest():
             return True
         if self.counter < 2:
             return False
-        if self.atol and np.abs(self.history[0] - self.history[1]) < self.atol:
+        if self.atol and np.abs(self.history[(self.counter+1)%2]) < self.atol:
             return True
         if self.rtol and self.history[(self.counter+1)%2]/self.history[self.counter%2] < 1+self.rtol:
             return True

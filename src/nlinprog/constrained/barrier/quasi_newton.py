@@ -24,9 +24,8 @@ class BarrierQuasiNewtonMethod():
 
         for k in range(maxiters1):
             # check for convergence 
-            if barrier_tol_convergence:
-                barrier_tol_convergence.update(0.0) 
-                barrier_tol_convergence.update(mu*barrier_func(x_k))
+            if barrier_tol_convergence and k > 0:
+                barrier_tol_convergence.update(np.linalg.norm(res_k.grad))
                 if barrier_tol_convergence.converged():
                     converged = True
 

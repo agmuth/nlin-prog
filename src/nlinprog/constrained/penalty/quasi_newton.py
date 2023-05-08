@@ -25,9 +25,8 @@ class PenalizedQuasiNewtonMethod():
 
         for k in range(maxiters1):
             # check for convergence 
-            if penalty_tol_convergence:
-                penalty_tol_convergence.update(0.0) 
-                penalty_tol_convergence.update(mu*penalty_func(x_k))
+            if penalty_tol_convergence and k > 0:
+                penalty_tol_convergence.update(np.linalg.norm(res_k.grad))
                 if penalty_tol_convergence.converged():
                     converged = True
 
