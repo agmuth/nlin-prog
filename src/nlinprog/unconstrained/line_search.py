@@ -44,7 +44,7 @@ class ArmijoBacktraackingLineSearch(LineSearch):
 
 
 class WolfeZoomLineSearch(LineSearch):
-    def __init__(self, alpha_max: float=1.0, c1: float=0.2, c2: float=2.0):
+    def __init__(self, alpha_max: float=2.0, c1: float=0.2, c2: float=2.0):
         self.alpha_max = alpha_max
         self.c1 = c1
         self.c2 = c2
@@ -82,6 +82,8 @@ class WolfeZoomLineSearch(LineSearch):
             if phi_prime_of_alpha_i >= 0:
                 # zoom(alpha_i, alpha_i-1)
                 return self._zoom(phi, phi_prime, alpha_i, alpha_i_minus_one)
+            
+            if i > 10: return alpha_i # early termination TODO: make better
             
     def _zoom(self, phi: callable, phi_prime: callable, alpha_low: float, alpha_high: float) -> float:
         zero = 0.0
