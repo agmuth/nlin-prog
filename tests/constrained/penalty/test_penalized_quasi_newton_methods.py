@@ -4,7 +4,7 @@ import pytest
 from nlinprog.constrained.penalty.quasi_newton import PenalizedQuasiNewtonMethod
 from tests.constrained.constrained_test_functions import CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS, ConstrainedOptimizationTestFunction
 
-PENALIZED_TEST_FUNCTIONS = CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS[0:1]
+PENALIZED_TEST_FUNCTIONS = [func for func in CONSTRAINED_OPTIMIZATION_TEST_FUNCTIONS if not func.min_not_on_boundary or func.h]
 
 @pytest.mark.parametrize("func", PENALIZED_TEST_FUNCTIONS)
 @pytest.mark.parametrize("line_search_method", ["wolfe", "armijo"])
