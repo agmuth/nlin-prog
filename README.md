@@ -1,4 +1,4 @@
-# linear-programming
+# nonlinear-programming
 Collection of nonlinear programming algorithms from self study. 
 
 ## Installation
