@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Optional, Union
 
-from nlinprog.unconstrained.line_search import LineSearch
+from nlinprog.line_search import LineSearch
 from nlinprog.utils import SimpleConvergenceTest, build_result_object
 from nlinprog.unconstrained.quasi_newton import QuasiNewtonMethod, ApproxInverseHessian
 from nlinprog.constrained.barrier.barrier_functions import BARRIER_FUNCTIONS_MAPPING, BarrierFunction

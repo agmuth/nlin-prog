@@ -1,6 +1,6 @@
 from typing import Optional, Union
 
-from nlinprog.unconstrained.line_search import LineSearch
+from nlinprog.line_search import LineSearch
 from nlinprog.unconstrained.conjugate_gradient import ConjugateGradientMethod, CalcConjugateGradientDirection
 from nlinprog.constrained.penalty.quasi_newton import PenalizedQuasiNewtonMethod
 from nlinprog.constrained.penalty.penalty_functions import INEQUALITY_PENALTY_FUNCTIONS_MAPPING, EQUALITY_PENALTY_FUNCTIONS_MAPPING, InequalityPenaltyFunction, EqualityPenaltyFunction, zero_func

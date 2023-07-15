@@ -16,9 +16,7 @@ def test_conjugate_gradient_sovlers_grad_atol(
         atol,
     ):
     solver = ConjugateGradientMethod(f=func.f, line_search_method=line_search_method, conjugate_gradient_direction_method=conjugate_gradient_direction_method)
-    res = solver.solve(x_0=func.x_start, grad_atol=atol)
-
-    # check that L2 norm of grad is same order of magnitude as atol - some methods do not garuantee that grad is monotonic decreasing. 
-    assert np.allclose(np.linalg.norm(res.x - func.x_min), 0, atol=0.1)
+    res = solver.solve(x_0=func.x_start, atol=atol)
+    assert np.abs(func.f(func.x_min) - res.func) < np.sqrt(atol)
     
     

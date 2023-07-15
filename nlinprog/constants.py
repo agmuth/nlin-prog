@@ -1,0 +1,3 @@
+ATOL = 1e-4
+RTOL = 1e-2
+DEFAULT_H = 1e-8

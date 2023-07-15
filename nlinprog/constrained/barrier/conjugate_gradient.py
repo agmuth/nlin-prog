@@ -1,6 +1,6 @@
 from typing import Optional, Union
 
-from nlinprog.unconstrained.line_search import LineSearch
+from nlinprog.line_search import LineSearch
 from nlinprog.unconstrained.conjugate_gradient import ConjugateGradientMethod, CalcConjugateGradientDirection
 from nlinprog.constrained.barrier.quasi_newton import BarrierQuasiNewtonMethod
 from nlinprog.constrained.barrier.barrier_functions import BARRIER_FUNCTIONS_MAPPING, BarrierFunction
