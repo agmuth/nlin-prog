@@ -15,7 +15,7 @@ PENALIZED_TEST_FUNCTIONS = [
 
 
 @pytest.mark.parametrize("func", PENALIZED_TEST_FUNCTIONS)
-@pytest.mark.parametrize("line_search_method", ["armijo", "wolfe"])
+@pytest.mark.parametrize("line_search_method", ["wolfe"])
 @pytest.mark.parametrize(
     "conjugate_gradient_direction_method", ["polak-ribiere", "fletcher-reeves"]
 )

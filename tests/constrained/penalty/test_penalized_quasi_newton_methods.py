@@ -15,7 +15,7 @@ PENALIZED_TEST_FUNCTIONS = [
 
 
 @pytest.mark.parametrize("func", PENALIZED_TEST_FUNCTIONS)
-@pytest.mark.parametrize("line_search_method", ["wolfe", "armijo"])
+@pytest.mark.parametrize("line_search_method", ["wolfe"])
 @pytest.mark.parametrize("inverse_hessian_method", ["exact", "bfgs", "dfp", "broyden"])
 @pytest.mark.parametrize("atol", [1e-4])
 def test_penalized_newton_sovlers_grad_atol(

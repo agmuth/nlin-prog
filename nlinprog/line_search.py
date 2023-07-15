@@ -79,6 +79,7 @@ class ArmijoBacktraackingLineSearch(LineSearch):
 
     def __call__(self, f: callable, x_k: np.ndarray, d_k: np.ndarray) -> float:
         alpha = np.array(self.alpha)
+
         def phi(alpha):
             return f(x_k + alpha * d_k)
 
@@ -119,8 +120,10 @@ class WolfeZoomLineSearch(LineSearch):
     def __call__(self, f: callable, x_k: np.ndarray, d_k: np.ndarray) -> float:
         # algorithm 3.5 Numerical Optimization Nocedal + Wright
         grad_f = central_difference(f)
+
         def phi(alpha):
             return f(x_k + alpha * d_k)
+
         def phi_prime(alpha):
             return grad_f(x_k + alpha * d_k).T @ d_k
 

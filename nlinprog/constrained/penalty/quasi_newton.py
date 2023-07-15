@@ -108,6 +108,7 @@ class PenalizedQuasiNewtonMethod:
         """
         # init params for algorithm
         x_k = np.array(x_0).astype(np.float64)
+
         def penalty_func(x):
             return self.g_penalized(x) + self.h_penalized(x)
 
@@ -116,8 +117,12 @@ class PenalizedQuasiNewtonMethod:
 
         for k in range(maxiters1):
             # check for convergence
-            if np.all(self.g(x_k) <= 0) and np.all(
-                np.isclose(self.h(x_k), 0, atol=1e-4)
+            if (
+                np.all(self.g(x_k) <= 0)
+                if self.g
+                else True and np.all(np.isclose(self.h(x_k), 0, atol=1e-4))
+                if self.h
+                else True
             ):
                 convergence_test.update(self.f(x_k))
                 if convergence_test.converged:
@@ -129,6 +134,7 @@ class PenalizedQuasiNewtonMethod:
 
             def objective_func_k(x):
                 return self.f(x) + mu * penalty_func(x)
+
             self.solver.f = objective_func_k
             res_k = self.solver.solve(
                 x_0=x_k, maxiters=maxiters2, atol=atol2, rtol=rtol2

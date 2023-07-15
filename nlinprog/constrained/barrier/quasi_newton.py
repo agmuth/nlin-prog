@@ -92,6 +92,7 @@ class BarrierQuasiNewtonMethod:
         # init params for algorithm
         x_k = np.array(x_0).astype(np.float64)
         beta_inv = beta**-1
+
         def barrier_func(x):
             return self.g_barrier(x)
 
@@ -108,6 +109,7 @@ class BarrierQuasiNewtonMethod:
 
             def objective_func_k(x):
                 return self.f(x) + mu * barrier_func(x)
+
             self.solver.f = objective_func_k
             res_k = self.solver.solve(
                 x_0=x_k, maxiters=maxiters2, atol=atol2, rtol=rtol2
