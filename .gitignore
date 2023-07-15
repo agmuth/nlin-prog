@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 sandbox.*
+
+.ruff_cache
