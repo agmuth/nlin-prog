@@ -1,5 +1,5 @@
 # linear-programming
-Collection of linear programming algorithms from self study. 
+Collection of nonlinear programming algorithms from self study. 
 
 ## Installation
 ```{code}
