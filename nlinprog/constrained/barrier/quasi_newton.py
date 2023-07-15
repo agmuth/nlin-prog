@@ -107,16 +107,3 @@ class BarrierQuasiNewtonMethod():
         return build_result_object(self.f, x_k, k, converged)
     
     
-    
-if __name__ == "__main__":
-    f=lambda x: (1 - x[0])**2 + 100*(x[1] - x[0]**2)**2
-    g=lambda x: np.array([
-        np.square(x).sum() - 2.5
-    ])
-    h=None
-    x_start=np.array([-0.5, -0.5])
-    x_min=np.ones(2)
-    
-    solver = BarrierQuasiNewtonMethod(f, g, line_search_method="wolfe", inverse_hessian_method="bfgs")
-    res = solver.solve(x_0=x_start, atol1=1e-4, maxiters1=500)
-    print(res)
