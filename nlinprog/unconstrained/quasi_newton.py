@@ -150,11 +150,23 @@ APPROX_INVERSE_HESSIAN_MAPPING = MappingProxyType(
 
 
 class QuasiNewtonMethod():
+    """Quasi Newton method for unconstrained nonlinear optimization."""
     def __init__(
         self, f: callable,
         line_search_method: Union[LineSearch, str]="wolfe",
         inverse_hessian_method: Union[ApproxInverseHessian, str]="exact"
     ):
+        """init
+
+        Parameters
+        ----------
+        f : callable
+            Funciton to minimize.
+        line_search_method : Union[LineSearch, str], optional
+            Line search method to use in each step of algorithm, by default "wolfe"
+        inverse_hessian_method : Union[ApproxInverseHessian, str], optional
+            Method to calculate approximation of inverse hessian at each step of algorithm, by default "exact"
+        """
         self.f = f
         self.line_search = (
             LINE_SEARCH_MAPPING[line_search_method](c1=1e-4, c2=0.9, eta=2, epsilon=0.2) 

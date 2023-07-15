@@ -1,14 +1,12 @@
 import numpy as np
 from abc import ABC, abstractclassmethod
 from types import MappingProxyType
-
-ZERO_MINUS = -1e-16
+from nlinprog.constants import ZERO_PLUS, ZERO_MINUS
 
 class BarrierFunction(ABC):
     def __init__(self):
-        eps = 1e-8
-        self.ZERO_MINUS = -1*eps
-        self.ZERO_PLUS = eps
+        self.ZERO_MINUS = ZERO_MINUS
+        self.ZERO_PLUS = ZERO_PLUS
 
     @abstractclassmethod
     def __call__(self):
@@ -17,6 +15,7 @@ class BarrierFunction(ABC):
 
 class InverseBarrierFunction(BarrierFunction):
     def __call__(self, g: callable) -> callable:
+        """Construct + return the invesers barrier function wrt to `g`"""
         def barrier_func(x: np.ndarray) -> float:
             g_of_x = g(x)
             g_of_x[g_of_x >= self.ZERO_MINUS] = self.ZERO_MINUS
@@ -25,6 +24,7 @@ class InverseBarrierFunction(BarrierFunction):
     
 class LogarithmicBarrierFunction(BarrierFunction):
     def __call__(self, g: callable) -> callable:
+        """Construct + return the logarithmic barrier function wrt to `g`"""
         def barrier_func(x: np.ndarray) -> float:
             g_of_x = g(x)
             g_of_x[g_of_x < -1] = -1

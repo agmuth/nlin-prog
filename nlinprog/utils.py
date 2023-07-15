@@ -9,7 +9,7 @@ class ConvergenceTest:
     def __init__(self, atol: Optional[float]=0.0, rtol: Optional[float]=0.0):
         self.atol = atol
         self.rtol = rtol
-        self.history = np.empty(2)
+        self.history = np.array([None, None])
         self.counter = -1
         self.history[self.counter%2] = np.inf
     
@@ -19,10 +19,11 @@ class ConvergenceTest:
     
     @property
     def converged(self) -> bool:
-        return (
-            (np.abs(self.history[0] - self.history[1]) < self.atol)
-            or (1 - (self.history[self.counter%2] / self.history[(self.counter-1)%2]) < self.rtol)
-        )
+        if self.atol > 0:
+            return np.linalg.norm(self.history[self.counter%2] - self.history[(self.counter-1)%2]) < self.atol
+        if self.rtol > 0:
+            return (1 - (self.history[self.counter%2] / self.history[(self.counter-1)%2]) < self.rtol)
+        return False
 
 
     

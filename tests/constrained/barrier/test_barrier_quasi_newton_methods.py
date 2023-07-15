@@ -17,9 +17,6 @@ def test_barrier_newton_sovlers_grad_atol(
         atol,
     ):
     solver = BarrierQuasiNewtonMethod(f=func.f, g=func.g, line_search_method=line_search_method, inverse_hessian_method=inverse_hessian_method)
-    res = solver.solve(x_0=func.x_start, grad_atol=atol)
-    
-    # check that L2 norm of grad is same order of magnitude as atol - some methods do not garuantee that grad is monotonic decreasing. 
-    # assert np.allclose(np.logaddexp(np.linalg.norm(res.grad), atol), 0.0, atol=10) and res.converged
-    assert np.allclose(np.linalg.norm(res.x - func.x_min), 0, atol=0.1)
+    res = solver.solve(x_0=func.x_start, atol1=atol, atol2=atol**2, rtol1=atol, rtol2=atol**2)
+    assert np.allclose(np.abs(res.func- func.f(func.x_min)), 0, atol=atol)
 
